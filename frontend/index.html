@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcousticSpace - Deepfake Audio Detection via Room Impulse Response (RIR)</title>
+  <meta name="description" content="AcousticSpace uses Room Impulse Response (RIR) and environmental acoustic forensics to detect AI-generated and deepfake speech recordings. B.Tech Final-Year Project in AI & Data Science.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M2 12h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2v-6zm20 0h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v-6zM6 8v8m4-11v14m4-11v14m4-8v8'/></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <div class="pulse-ring"></div>
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 12h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H2v-6zm20 0h-2a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v-6zM6 8v8m4-11v14m4-11v14m4-8v8"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title-wrap">
+            <h1 class="brand-title">AcousticSpace</h1>
+            <span class="badge-research">Forensic Residual Physics</span>
+          </div>
+          <p class="brand-subtitle">Deepfake Speech Detection via Room Impulse Response (RIR) & Acoustic Consistency</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="academic-badge">
+          <span class="dot-online"></span>
+          <div>
+            <div class="academic-title">B.Tech Final-Year Capstone</div>
+            <div class="academic-sub">AI &amp; Data Science | AST Transformer + Librosa</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="btnQuickDemo" class="btn btn-primary btn-sm">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Run Demo Scan
+          </button>
+          <a href="#viva" id="btnVivaGuide" class="btn btn-secondary btn-sm">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Viva &amp; Docs
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-bar">
+      <div class="nav-tabs" role="tablist">
+        <button class="nav-tab active" data-tab="tab-analyzer" role="tab" aria-selected="true">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          Forensic Audio Analyzer
+        </button>
+        <button class="nav-tab" data-tab="tab-simulator" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          3D Room Acoustic Simulator
+        </button>
+        <button class="nav-tab" data-tab="tab-compare" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          A/B Acoustic Comparison
+        </button>
+        <button class="nav-tab" data-tab="tab-history" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+          Audit History &amp; Reports
+        </button>
+        <button class="nav-tab" data-tab="tab-research" role="tab" aria-selected="false">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Architecture &amp; Viva Defense
+        </button>
+      </div>
+
+      <div class="system-status-indicator">
+        <span class="status-indicator-pill">
+          <span class="pulse-dot"></span>
+          <span>Pipeline: Ready (AST + RIR Engine)</span>
+        </span>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="content-body">
+
+      <!-- ================= TAB 1: FORENSIC ANALYZER ================= -->
+      <section id="tab-analyzer" class="tab-content active">
+        <!-- Top Benchmarks & Ingestion Row -->
+        <div class="grid-2-col ingestion-section">
+          <!-- Ingestion Card -->
+          <div class="card glass-card upload-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Stage 01</span>
+                <h3>Audio Ingestion &amp; Preprocessing</h3>
+              </div>
+              <span class="text-muted text-xs">Supports WAV, MP3, FLAC, M4A</span>
+            </div>
+
+            <div class="upload-dropzone" id="dropzone">
+              <input type="file" id="audioFileInput" accept="audio/*" class="file-input-hidden">
+              <div class="dropzone-content">
+                <div class="drop-icon-wrap">
+                  <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="drop-text-primary">Drag &amp; drop suspected audio file here</div>
+                <div class="drop-text-sub">or <button type="button" class="btn-link" id="btnBrowseFile">browse from computer</button></div>
+                <div class="drop-specs">16 kHz / 24-bit mono recommended &bull; Librosa resampler ready</div>
+              </div>
+            </div>
+
+            <div class="record-controls-row">
+              <button id="btnRecordMic" class="btn btn-outline btn-sm">
+                <span class="rec-dot"></span>
+                <span id="recordBtnLabel">Record Live Mic</span>
+              </button>
+              <span class="text-xs text-muted" id="currentFileName">No file loaded yet</span>
+            </div>
+          </div>
+
+          <!-- Benchmark Test Presets Card -->
+          <div class="card glass-card presets-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Benchmark</span>
+                <h3>ASVspoof &amp; Controlled Acoustic Presets</h3>
+              </div>
+              <span class="text-muted text-xs">Click to test instantly</span>
+            </div>
+
+            <div class="presets-list">
+              <div class="preset-item" data-sample="genuine-room">
+                <div class="preset-info">
+                  <div class="preset-name">
+                    <span class="tag-real">Genuine</span> Human Speech &ndash; Living Room
+                  </div>
+                  <div class="preset-desc">Natural early reflections, RT60: 0.46s, coherent vocal tract absorption</div>
+                </div>
+                <button class="btn btn-sm btn-preset-test">Load &amp; Scan</button>
+              </div>
+
+              <div class="preset-item" data-sample="synthetic-elevenlabs">
+                <div class="preset-info">
+                  <div class="preset-name">
+                    <span class="tag-fake">Deepfake</span> ElevenLabs TTS &ndash; Zero Room Acoustics
+                  </div>
+                  <div class="preset-desc">Unnatural dry impulse, DRR: +34.2 dB, complete absence of natural room reflections</div>
+                </div>
+                <button class="btn btn-sm btn-preset-test">Load &amp; Scan</button>
+              </div>
+
+              <div class="preset-item" data-sample="synthetic-valle-reverb">
+                <div class="preset-info">
+                  <div class="preset-name">
+                    <span class="tag-fake">Deepfake</span> VALL-E AI Clone &ndash; Artificial Reverb Mismatch
+                  </div>
+                  <div class="preset-desc">Convolution mismatch: direct speech energy decoupled from synthetic tail decay</div>
+                </div>
+                <button class="btn btn-sm btn-preset-test">Load &amp; Scan</button>
+              </div>
+
+              <div class="preset-item" data-sample="spliced-attack">
+                <div class="preset-info">
+                  <div class="preset-name">
+                    <span class="tag-anomaly">Spliced Attack</span> Manipulated Audio Injection
+                  </div>
+                  <div class="preset-desc">Abrupt RIR jump at 02.1s (office hall acoustic shifted suddenly to dry studio)</div>
+                </div>
+                <button class="btn btn-sm btn-preset-test">Load &amp; Scan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Player & Scrubber Bar -->
+        <div class="card glass-card player-card">
+          <div class="player-controls">
+            <button id="btnPlayPause" class="btn btn-primary btn-round" title="Play/Pause">
+              <svg id="iconPlay" class="player-btn-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <svg id="iconPause" class="player-btn-icon hidden" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+            <button id="btnStop" class="btn btn-secondary btn-round-sm" title="Stop &amp; Rewind">
+              <svg class="player-btn-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>
+            </button>
+
+            <div class="player-timeline-wrap">
+              <div class="time-readout">
+                <span id="currentTimeDisplay">00:00.00</span> / <span id="durationDisplay">00:03.85</span>
+              </div>
+              <input type="range" id="audioScrubber" min="0" max="100" value="0" step="0.1" class="custom-scrubber">
+            </div>
+
+            <div class="player-actions">
+              <div class="rate-selector">
+                <button class="btn-rate active" data-rate="1.0">1.0x</button>
+                <button class="btn-rate" data-rate="0.5">0.5x</button>
+              </div>
+              <button id="btnRerunScan" class="btn btn-outline btn-sm">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Re-Analyze
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual Visualizer & Spectrogram Section -->
+        <div class="grid-2-col visualizer-section">
+          <!-- Waveform & Anomalies Canvas -->
+          <div class="card glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Stage 02</span>
+                <h3>Audio Waveform &amp; Spliced Segment Detector</h3>
+              </div>
+              <div class="legend-pills">
+                <span class="pill-normal">Harmonic Speech</span>
+                <span class="pill-warning">Suspicious RIR Boundary</span>
+              </div>
+            </div>
+            <div class="canvas-container">
+              <canvas id="waveformCanvas" width="700" height="170"></canvas>
+              <div id="playheadBar" class="playhead-indicator"></div>
+            </div>
+            <div class="canvas-footer-stats">
+              <span>Sampling Rate: <strong id="srStat">16,000 Hz</strong></span>
+              <span>RMS Energy: <strong id="rmsStat">-18.4 dBFS</strong></span>
+              <span>Spectral Centroid: <strong id="centroidStat">1,840 Hz</strong></span>
+            </div>
+          </div>
+
+          <!-- Mel Spectrogram Canvas -->
+          <div class="card glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Stage 03</span>
+                <h3>Time-Frequency Spectrogram &amp; Reverberation Smear</h3>
+              </div>
+              <div class="spectrogram-modes">
+                <button class="btn-spectro-mode active" data-mode="mel">Mel-Scale (AST)</button>
+                <button class="btn-spectro-mode" data-mode="linear">Linear STFT</button>
+                <button class="btn-spectro-mode" data-mode="rir">RIR Residual</button>
+              </div>
+            </div>
+            <div class="canvas-container">
+              <canvas id="spectrogramCanvas" width="700" height="170"></canvas>
+            </div>
+            <div class="canvas-footer-stats">
+              <span>FFT Size: <strong>1024</strong></span>
+              <span>Hop Length: <strong>512</strong></span>
+              <span>Reverb Decay Tail: <strong id="decayTailStat">Smear Detected (Normal)</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detection Results & Forensic Verdict Banner -->
+        <div class="forensic-verdict-banner" id="verdictBanner">
+          <div class="verdict-main">
+            <div class="verdict-icon-box" id="verdictIconBox">
+              <svg id="verdictIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="verdict-label" id="verdictClassification">AWAITING AUDIO ANALYSIS</div>
+              <div class="verdict-summary" id="verdictSummary">Select or upload an audio sample to extract room acoustic features and run the AST transformer classifier.</div>
+            </div>
+          </div>
+
+          <div class="verdict-scores">
+            <div class="score-card">
+              <div class="score-label">Deepfake Probability</div>
+              <div class="score-value text-red" id="fakeProbabilityScore">--%</div>
+              <div class="score-bar-bg"><div class="score-bar-fill fill-red" id="fakeBarFill" style="width: 0%"></div></div>
+            </div>
+            <div class="score-card">
+              <div class="score-label">Genuine Probability</div>
+              <div class="score-value text-green" id="realProbabilityScore">--%</div>
+              <div class="score-bar-bg"><div class="score-bar-fill fill-green" id="realBarFill" style="width: 0%"></div></div>
+            </div>
+            <div class="score-card">
+              <div class="score-label">Acoustic Consistency</div>
+              <div class="score-value text-cyan" id="coherenceScore">--/100</div>
+              <div class="score-bar-bg"><div class="score-bar-fill fill-cyan" id="coherenceBarFill" style="width: 0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acoustic Physics & RIR Metrics Grid -->
+        <div class="grid-4-col rir-metrics-grid">
+          <!-- Metric 1: RT60 -->
+          <div class="metric-card glass-card">
+            <div class="metric-header">
+              <span class="metric-title">RT60 Reverberation Time</span>
+              <span class="metric-tooltip" title="Time taken for sound pressure level to attenuate by 60 dB in the acoustic enclosure. Estimated via Schroeder backward integration.">?</span>
+            </div>
+            <div class="metric-val" id="valRT60">0.48 <span class="unit">s</span></div>
+            <div class="metric-sub" id="subRT60">Optimal natural room range [0.3s - 0.7s]</div>
+            <div class="metric-status-badge badge-normal" id="badgeRT60">Physically Consistent</div>
+          </div>
+
+          <!-- Metric 2: DRR -->
+          <div class="metric-card glass-card">
+            <div class="metric-header">
+              <span class="metric-title">Direct-to-Reverberant Ratio (DRR)</span>
+              <span class="metric-tooltip" title="Logarithmic energy ratio between direct speech sound wave and reflected reverberation field. AI voices often exhibit unnaturally high DRR.">?</span>
+            </div>
+            <div class="metric-val" id="valDRR">+12.4 <span class="unit">dB</span></div>
+            <div class="metric-sub" id="subDRR">Expected indoor microphone distance: ~1.2m</div>
+            <div class="metric-status-badge badge-normal" id="badgeDRR">Natural Energy Balance</div>
+          </div>
+
+          <!-- Metric 3: Early Decay Time (EDT) -->
+          <div class="metric-card glass-card">
+            <div class="metric-header">
+              <span class="metric-title">Early Decay Time (EDT)</span>
+              <span class="metric-tooltip" title="Decay time extrapolated from the initial 10 dB decay slope. Highlights early boundary wall and ceiling reflections.">?</span>
+            </div>
+            <div class="metric-val" id="valEDT">0.39 <span class="unit">s</span></div>
+            <div class="metric-sub" id="subEDT">Linear decay correlation: R² = 0.96</div>
+            <div class="metric-status-badge badge-normal" id="badgeEDT">Consistent Slope</div>
+          </div>
+
+          <!-- Metric 4: Phoneme-Reverb Coherence -->
+          <div class="metric-card glass-card">
+            <div class="metric-header">
+              <span class="metric-title">Vocal-Reverb Coherence</span>
+              <span class="metric-tooltip" title="Measures cross-correlation between speech formant dynamics and room reflections. Artificial reverb overlays show low coherence.">?</span>
+            </div>
+            <div class="metric-val" id="valCoherence">89.4 <span class="unit">%</span></div>
+            <div class="metric-sub" id="subCoherence">High coupling between source &amp; boundary</div>
+            <div class="metric-status-badge badge-normal" id="badgeCoherence">Coupled Environment</div>
+          </div>
+        </div>
+
+        <!-- Energy Decay Curve & Forensic Analysis Breakdown -->
+        <div class="grid-2-col decay-and-forensics">
+          <!-- Schroeder Energy Decay Curve (EDC) -->
+          <div class="card glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Physics Curve</span>
+                <h3>Energy Decay Curve (Schroeder Backward Integration)</h3>
+              </div>
+              <span class="text-xs text-muted">$\int_t^\infty h^2(\tau) d\tau$ in decibels</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="edcCanvas" width="700" height="190"></canvas>
+            </div>
+            <div class="canvas-caption">
+              <span>Solid line: Extracted Decay Slope</span> &bull; 
+              <span>Dashed line: Theoretical Room Impulse Decay</span>
+            </div>
+          </div>
+
+          <!-- Forensic Diagnostic Details & XAI (Explainable AI) -->
+          <div class="card glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Forensic Audit</span>
+                <h3>Explainable AI (XAI) Diagnostic Summary</h3>
+              </div>
+              <button class="btn btn-outline btn-xs" id="btnExportPDF">Export Report (PDF/JSON)</button>
+            </div>
+
+            <div class="forensic-findings-list" id="findingsList">
+              <div class="finding-item finding-ok">
+                <div class="finding-icon">&check;</div>
+                <div class="finding-content">
+                  <div class="finding-title">Harmonic Formant vs Reverberation Alignment</div>
+                  <div class="finding-detail">Vocal pitch changes correspond consistently with acoustic room decay frequencies. No unnatural phase jump observed.</div>
+                </div>
+              </div>
+              <div class="finding-item finding-ok">
+                <div class="finding-icon">&check;</div>
+                <div class="finding-content">
+                  <div class="finding-title">Diffuseness &amp; Late Reflection Density</div>
+                  <div class="finding-detail">Room reflection density scales quadratically over time $N(t) \propto t^2$, typical of authentic 3D enclosed spaces.</div>
+                </div>
+              </div>
+              <div class="finding-item finding-ok">
+                <div class="finding-icon">&check;</div>
+                <div class="finding-content">
+                  <div class="finding-title">Room Boundary Temporal Continuity</div>
+                  <div class="finding-detail">No splicing artifacts or sudden shifts in ambient floor noise detected across the 3.8-second recording window.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Suspicious Segment Time-Jump Bar -->
+            <div class="anomaly-segment-box" id="anomalyBox" style="display: none;">
+              <div class="anomaly-title">⚠️ Flagged Temporal Discontinuities:</div>
+              <div class="anomaly-timestamps" id="anomalyTimestamps">
+                <!-- dynamic timestamps -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= TAB 2: 3D ROOM SIMULATOR ================= -->
+      <section id="tab-simulator" class="tab-content">
+        <div class="simulator-layout">
+          <!-- Simulator Controls Sidebar -->
+          <div class="card glass-card sim-sidebar">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Acoustic Physics</span>
+                <h3>Virtual Room Configuration</h3>
+              </div>
+            </div>
+
+            <div class="sim-control-group">
+              <label class="sim-label">Room Preset Environment</label>
+              <select id="simRoomPreset" class="sim-select">
+                <option value="living-room">Living Room (Furnished, Wood &amp; Carpet)</option>
+                <option value="classroom">Classroom / Lecture Hall (Plaster &amp; Concrete)</option>
+                <option value="cathedral">Large Stone Cathedral (High Reverb)</option>
+                <option value="dry-studio">Acoustic Recording Studio (Anechoic Foam)</option>
+                <option value="small-booth">Vocal Isolation Booth (Minimal Reflections)</option>
+              </select>
+            </div>
+
+            <div class="sim-control-group">
+              <div class="slider-header">
+                <label>Room Dimensions (L &times; W &times; H)</label>
+                <span id="roomDimReadout">6m &times; 5m &times; 3m (90 m³)</span>
+              </div>
+              <input type="range" id="simRoomLength" min="3" max="20" value="6" step="0.5" class="custom-slider">
+            </div>
+
+            <div class="sim-control-group">
+              <div class="slider-header">
+                <label>Wall Absorption Coefficient (&alpha;)</label>
+                <span id="roomAlphaReadout">&alpha; = 0.22</span>
+              </div>
+              <input type="range" id="simAbsorption" min="0.05" max="0.95" value="0.22" step="0.01" class="custom-slider">
+            </div>
+
+            <div class="sim-control-group">
+              <div class="slider-header">
+                <label>Speaker-to-Mic Distance</label>
+                <span id="micDistanceReadout">1.8 meters</span>
+              </div>
+              <input type="range" id="simDistance" min="0.5" max="10" value="1.8" step="0.1" class="custom-slider">
+            </div>
+
+            <!-- Sabine Formula Calculation Box -->
+            <div class="sabine-formula-box">
+              <div class="formula-title">Sabine's Reverberation Equation:</div>
+              <div class="formula-math">RT₆₀ = 0.161 &middot; V / (S &middot; &alpha;)</div>
+              <div class="formula-calculated">
+                Calculated RT₆₀: <strong id="simSabineRT60">0.45 s</strong>
+              </div>
+            </div>
+
+            <div class="sim-buttons-col">
+              <button id="btnEmitSoundPulse" class="btn btn-primary btn-block">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/></svg>
+                Fire Acoustic Impulse Ray
+              </button>
+              <button id="btnConvolveAudio" class="btn btn-secondary btn-block">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                Apply Room RIR to Current Voice
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive 2D/Isometric Ray Tracing Canvas -->
+          <div class="card glass-card sim-canvas-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Interactive</span>
+                <h3>Real-Time Room Ray-Tracing &amp; Acoustic Reflections</h3>
+              </div>
+              <div class="canvas-tags">
+                <span class="ray-tag-direct">Direct Wave</span>
+                <span class="ray-tag-early">Early Reflections (1st-3rd order)</span>
+                <span class="ray-tag-late">Late Diffuse Reverberation</span>
+              </div>
+            </div>
+
+            <div class="room-canvas-wrapper">
+              <canvas id="roomRayCanvas" width="750" height="420"></canvas>
+              <div class="room-overlay-guide">
+                <span>Drag 🔵 (Speaker) or 🔴 (Microphone) to reposition in real-time</span>
+              </div>
+            </div>
+
+            <!-- Simulated Impulse Response Chart below room -->
+            <div class="sim-rir-graph-section">
+              <div class="rir-graph-header">
+                <h4>Generated Room Impulse Response: $h(t)$</h4>
+                <span class="text-xs text-muted">Direct Spike &rarr; Early Wall Bounces &rarr; Exponential Decay Envelope</span>
+              </div>
+              <canvas id="simRirCanvas" width="750" height="130"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= TAB 3: A/B COMPARISON ================= -->
+      <section id="tab-compare" class="tab-content">
+        <div class="compare-container">
+          <div class="card glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Forensic Comparison</span>
+                <h3>Side-by-Side Acoustic Consistency Matrix</h3>
+              </div>
+              <p class="text-muted text-sm">Compare physical acoustic features between genuine human vocalizations and AI voice synthesis engines.</p>
+            </div>
+
+            <div class="comparison-grid">
+              <!-- Genuine Profile -->
+              <div class="compare-col authentic-profile">
+                <div class="compare-col-header">
+                  <span class="tag-real">AUTHENTIC REFERENCE</span>
+                  <h4>Human Speech in Real Enclosure</h4>
+                  <p class="text-xs text-muted">Recording: Clean indoor environment, 1.5m mic distance</p>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Estimated RT60:</span>
+                  <span class="c-val">0.48 s (Consistent with room volume)</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Direct-to-Reverberant Ratio:</span>
+                  <span class="c-val">+12.4 dB (Natural early wall reflections)</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Schroeder Decay Linearity:</span>
+                  <span class="c-val">R² = 0.98 (Smooth exponential decay)</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Phoneme-Reverb Coupling:</span>
+                  <span class="c-val">High (91.2% spectral harmonic tracking)</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Spectral Smear Residual:</span>
+                  <span class="c-val">Matches surface frequency absorption</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">AST Transformer Score:</span>
+                  <span class="c-val text-green font-bold">96.8% Genuine Confidence</span>
+                </div>
+              </div>
+
+              <!-- Synthetic Profile -->
+              <div class="compare-col synthetic-profile">
+                <div class="compare-col-header">
+                  <span class="tag-fake">AI-GENERATED DEEPFAKE</span>
+                  <h4>ElevenLabs / VALL-E AI Clone</h4>
+                  <p class="text-xs text-muted">Recording: Neural vocoder output without physical room modeling</p>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Estimated RT60:</span>
+                  <span class="c-val text-red font-bold">0.02 s (Anomalously Dry / No Reflections)</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Direct-to-Reverberant Ratio:</span>
+                  <span class="c-val text-red font-bold">+35.8 dB (Absence of ambient bounce)</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Schroeder Decay Linearity:</span>
+                  <span class="c-val text-red">Erratic / Truncated abruptly at phoneme ends</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Phoneme-Reverb Coupling:</span>
+                  <span class="c-val text-red font-bold">Low (14.6% - Artificial reverb artifact)</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">Spectral Smear Residual:</span>
+                  <span class="c-val text-red">Decoupled or missing physics residuals</span>
+                </div>
+                <div class="compare-metric-row">
+                  <span class="c-label">AST Transformer Score:</span>
+                  <span class="c-val text-red font-bold">95.4% Deepfake Confidence</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlaid Decay Curves comparison -->
+            <div class="comparison-curve-box">
+              <div class="curve-header">
+                <h4>Superimposed Energy Decay Curves (EDC)</h4>
+                <div class="curve-legend">
+                  <span class="legend-green">Genuine Human Decay Slope</span>
+                  <span class="legend-red">AI Deepfake Truncated Slope</span>
+                </div>
+              </div>
+              <canvas id="compareEdcCanvas" width="1000" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= TAB 4: AUDIT HISTORY & REPORTS ================= -->
+      <section id="tab-history" class="tab-content">
+        <div class="card glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-step-badge">Session Audit</span>
+              <h3>Forensic Analysis History Log</h3>
+            </div>
+            <div class="history-actions">
+              <button id="btnClearHistory" class="btn btn-outline btn-xs">Clear History</button>
+              <button id="btnExportCSV" class="btn btn-secondary btn-xs">Download CSV Report</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="forensic-table" id="historyTable">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Audio File</th>
+                  <th>Duration</th>
+                  <th>Verdict</th>
+                  <th>Deepfake Prob.</th>
+                  <th>RT60 (s)</th>
+                  <th>DRR (dB)</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <!-- dynamic rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= TAB 5: ARCHITECTURE & RESEARCH VIVA DEFENSE ================= -->
+      <section id="tab-research" class="tab-content">
+        <div class="research-container">
+          <!-- B.Tech Project Banner -->
+          <div class="project-hero-card glass-card">
+            <div class="hero-content">
+              <div class="academic-flag">B.Tech Final-Year Project &bull; Department of AI &amp; Data Science</div>
+              <h2>AcousticSpace: Deepfake Audio Detection via Room Impulse Response (RIR)</h2>
+              <p class="hero-desc">
+                Addressing the fundamental vulnerability of vocal-only deepfake detectors by leveraging <strong>forensic residual physics</strong> and environmental acoustic consistency. While generative neural vocoders can mimic human formant frequencies, pitch contour, and vocal tract resonance, they consistently struggle to model the physically coupled, multi-path acoustic reflections that occur within real physical enclosures.
+              </p>
+              <div class="hero-badges">
+                <span class="pill-tech">Python 3.13</span>
+                <span class="pill-tech">Librosa 0.10</span>
+                <span class="pill-tech">PyTorch</span>
+                <span class="pill-tech">HuggingFace AST</span>
+                <span class="pill-tech">FastAPI</span>
+                <span class="pill-tech">ASVspoof 2019/2021</span>
+                <span class="pill-tech">Schroeder Integration</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Core System Modules as specified in project doc -->
+          <div class="modules-overview">
+            <h3 class="section-title">System Architecture: Four Core Modules</h3>
+            <div class="grid-4-col">
+              <div class="module-card glass-card">
+                <div class="module-number">01</div>
+                <h4>Audio Processing Pipeline</h4>
+                <div class="module-tech">Python + Librosa</div>
+                <p>Resamples audio to 16 kHz, normalizes amplitude to -20 dBFS, performs STFT, computes 128-band Mel spectrograms, and estimates Room Impulse Response via cepstral deconvolution.</p>
+                <ul class="module-points">
+                  <li>Sample rate standardization</li>
+                  <li>Blind RT60 estimation</li>
+                  <li>Direct-to-Reverberant Ratio (DRR)</li>
+                </ul>
+              </div>
+
+              <div class="module-card glass-card">
+                <div class="module-number">02</div>
+                <h4>Transformer Classifier</h4>
+                <div class="module-tech">PyTorch + HuggingFace AST</div>
+                <p>Utilizes the Audio Spectrogram Transformer (AST) pretrained on AudioSet and fine-tuned on ASVspoof 2019/2021 to detect micro-level inconsistencies in time-frequency acoustic smear.</p>
+                <ul class="module-points">
+                  <li>Patch-based 16&times;16 embedding</li>
+                  <li>Multi-head self-attention</li>
+                  <li>Binary classification head</li>
+                </ul>
+              </div>
+
+              <div class="module-card glass-card">
+                <div class="module-number">03</div>
+                <h4>API Gateway</h4>
+                <div class="module-tech">FastAPI + Async Engine</div>
+                <p>High-throughput RESTful gateway providing sub-200ms latency for real-time audio file ingestion, task routing, batch inference, and forensic audit report generation.</p>
+                <ul class="module-points">
+                  <li><code>POST /api/analyze</code></li>
+                  <li><code>GET /api/samples</code></li>
+                  <li><code>GET /api/report/{id}</code></li>
+                </ul>
+              </div>
+
+              <div class="module-card glass-card">
+                <div class="module-number">04</div>
+                <h4>Analyst Dashboard</h4>
+                <div class="module-tech">React + TypeScript + WaveSurfer</div>
+                <p>Interactive web application providing forensic cyber-analysts with interactive waveforms, spectrogram visualizers, RIR physics metrics, and explainable AI diagnostic summaries.</p>
+                <ul class="module-points">
+                  <li>Interactive timeline scrubber</li>
+                  <li>Real-time room ray tracer</li>
+                  <li>Audit history &amp; PDF export</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mathematical Formulations -->
+          <div class="card glass-card math-section">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Mathematical Physics</span>
+                <h3>Core Acoustic Formulas &amp; Forensic Formulations</h3>
+              </div>
+            </div>
+
+            <div class="math-grid">
+              <div class="math-card">
+                <h4>1. Acoustic Convolutive Model</h4>
+                <div class="formula-display">y(t) = s(t) &ast; h(t) + n(t)</div>
+                <p class="formula-explanation">
+                  Recorded audio $y(t)$ is the mathematical convolution ($\ast$) of the clean vocal source $s(t)$ and the enclosure's Room Impulse Response $h(t)$, plus additive background noise $n(t)$. Deepfakes synthesize $s(t)$ directly, decoupling it from any physical $h(t)$.
+                </p>
+              </div>
+
+              <div class="math-card">
+                <h4>2. Schroeder Backward Integration (RT60)</h4>
+                <div class="formula-display">E(t) = &int;_t^&infin; h&sup2;(&tau;) d&tau;</div>
+                <p class="formula-explanation">
+                  Calculates the decay of sound energy without noise fluctuations. The time taken for $10 \log_{10}(E(t)/E(0))$ to drop from -5 dB to -35 dB is multiplied by 2 to determine the true reverberation time $RT_{60}$.
+                </p>
+              </div>
+
+              <div class="math-card">
+                <h4>3. Direct-to-Reverberant Ratio (DRR)</h4>
+                <div class="formula-display">DRR = 10 &middot; log&sub1;&sub0; [ &int;&sub0;^{t_d} h&sup2;(t) dt / &int;_{t_d}^&infin; h&sup2;(t) dt ]</div>
+                <p class="formula-explanation">
+                  Quantifies the ratio between the direct path energy (arrival within boundary $t_d \approx 2.5\text{ms}$) and the reflected reverberant field. Artificial AI voices consistently exhibit anomalous DRR values &gt; +30 dB.
+                </p>
+              </div>
+
+              <div class="math-card">
+                <h4>4. Sabine's Reverberation Formula</h4>
+                <div class="formula-display">RT&sub6;&sub0; = 0.161 &middot; V / ( &sum; S_i &middot; &alpha;_i )</div>
+                <p class="formula-explanation">
+                  Relates room volume $V$ (m³) and total surface boundary absorption ($\sum S_i \alpha_i$) to expected reverberation time. Discrepancies between environmental context and audio acoustics expose manipulated speech.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- B.Tech Viva Defense Q&A Cheat Sheet -->
+          <div class="card glass-card viva-section" id="viva">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">Examination Guide</span>
+                <h3>B.Tech Viva Voce Defense &ndash; Frequently Asked Questions</h3>
+              </div>
+              <span class="text-xs text-muted">Essential technical answers for external examiner reviews</span>
+            </div>
+
+            <div class="viva-accordion">
+              <div class="viva-item">
+                <div class="viva-question">
+                  <span>Q1: Why is checking Room Impulse Response (RIR) superior to checking vocal pitch or formant anomalies?</span>
+                  <span class="viva-arrow">&plus;</span>
+                </div>
+                <div class="viva-answer">
+                  Modern deep learning generative models (such as VALL-E, Bark, ElevenLabs, and CosyVoice) are trained extensively on human voice timbre, pitch contours, and phoneme transitions. They can easily deceive traditional vocal-only classifiers. However, these models generate audio in an "acoustic vacuum" or with superficial reverberation algorithms that violate fundamental wave equation physics (Schroeder energy decay, boundary absorption, and quadratic reflection density). RIR detection examines the physical enclosure rather than the vocal cords.
+                </div>
+              </div>
+
+              <div class="viva-item">
+                <div class="viva-question">
+                  <span>Q2: How do you extract Room Impulse Response from a single microphone speech recording without playing an impulse test?</span>
+                  <span class="viva-arrow">&plus;</span>
+                </div>
+                <div class="viva-answer">
+                  We use <strong>Blind RIR Estimation</strong> via homomorphic cepstral deconvolution and maximum likelihood estimation (MLE). In the complex cepstrum domain, convolution turns into addition: $\hat{y}(n) = \hat{s}(n) + \hat{h}(n)$. Because speech $s(n)$ has localized pitch harmonics while the room impulse response $h(n)$ forms a diffuse exponential decay, we use liftering filters and linear prediction residuals to isolate the room decay parameters without needing test chirps.
+                </div>
+              </div>
+
+              <div class="viva-item">
+                <div class="viva-question">
+                  <span>Q3: What datasets are used to train and validate AcousticSpace?</span>
+                  <span class="viva-arrow">&plus;</span>
+                </div>
+                <div class="viva-answer">
+                  We evaluate using the <strong>ASVspoof 2019 / 2021 Logical Access (LA)</strong> and <strong>WaveFake</strong> benchmarks, supplemented with controlled room impulse responses from the <strong>ACE (Acoustic Characterization, Exploitation) Corpus</strong> and <strong>OpenSLR RIR dataset</strong> to provide calibrated ground-truth room reverberation parameters across known room volumes and absorption profiles.
+                </div>
+              </div>
+
+              <div class="viva-item">
+                <div class="viva-question">
+                  <span>Q4: Why does the project use Audio Spectrogram Transformer (AST) instead of a simple 2D CNN (ResNet)?</span>
+                  <span class="viva-arrow">&plus;</span>
+                </div>
+                <div class="viva-answer">
+                  Convolutional Neural Networks (CNNs) have limited receptive fields defined by local kernel sizes ($3\times3$ or $5\times5$), making them less effective at capturing long-range temporal reverberation tails that smear across hundreds of milliseconds. AST utilizes global multi-head self-attention across non-overlapping $16\times16$ spectrogram patches, allowing the network to correlate early direct sound packets with distant late diffuse reflections across the entire time-frequency plane.
+                </div>
+              </div>
+
+              <div class="viva-item">
+                <div class="viva-question">
+                  <span>Q5: Does a room acoustic mismatch guarantee that an audio file is an AI deepfake?</span>
+                  <span class="viva-arrow">&plus;</span>
+                </div>
+                <div class="viva-answer">
+                  No, and this is an important technical distinction for our project defense: acoustic anomalies can also stem from legitimate post-processing, aggressive noise gating, multi-microphone cross-fades, or poor compression codecs. Therefore, AcousticSpace reports a <strong>forensic confidence score</strong> and flags acoustic discontinuities as forensic evidence for investigative analysts, rather than making an unsubstantiated absolute legal claim.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span>&copy; 2026 <strong>AcousticSpace</strong> &bull; B.Tech Final-Year Capstone Project</span>
+        <span class="footer-divider">|</span>
+        <span>AI &amp; Data Science &bull; Deepfake Audio Defense Research</span>
+      </div>
+      <div class="footer-right">
+        <span>Stack: FastAPI &bull; HuggingFace AST &bull; Librosa &bull; Web Audio API</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Audio Analysis Modal / Report Viewer -->
+  <div id="reportModal" class="modal-overlay hidden">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Forensic Audit Report Certificate</h3>
+        <button id="btnCloseModal" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body" id="modalReportContent">
+        <!-- dynamic report generated in JS -->
+      </div>
+      <div class="modal-footer">
+        <button id="btnPrintReport" class="btn btn-primary btn-sm">Print / Save as PDF</button>
+        <button id="btnDownloadJSON" class="btn btn-secondary btn-sm">Download JSON Audit Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio-samples.js"></script>
+  <script src="js/room-simulator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

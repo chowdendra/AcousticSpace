@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# PyTorch checkpoints and large audio datasets
+*.pt
+*.pth
+*.onnx
+checkpoints/
+data/
+datasets/
+*.wav
+*.mp3
+*.flac
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
